@@ -3,12 +3,12 @@
 #include <Motoron.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include <PID_v1.h>
 #include <Adafruit_ICM20X.h>
 #include <Adafruit_ICM20649.h>
 #include <Adafruit_Sensor.h>
 #include <math.h>
 #include <Arduino.h>
+
 
 //FUNCTION DECLARING
 void limbs_vertical();
@@ -29,48 +29,50 @@ int compute_error(uint16_t *sens);
 void turnUntilBlack(bool turnRight);
 void line_following();
 
+
 // === LINE FOLLOWING CONSTANTS ===
 // Configuring the sensors
 const uint8_t middleSensorPins[9] = {43, 44, 45, 46, 47, 48, 49, 50, 51}; // 9 array sensor located in the middle
 const uint8_t frontSensorPins[2] = {4, 5}; // 2 array sensor located in the front
 
+
 const uint16_t TIME_CALIB = 3000; // Time for each sensor calibration
 const uint16_t NUM_CALIB = 3000; // Number of calibrations taken for each sensor
+
 
 // To store the max and min pulse durations recorded during the calibration process for normalisation
 uint16_t middleMin[9], middleMax[9];
 uint16_t frontMin[2], frontMax[2];
 
+
 // Weights assigned to each sensor to calculate error
 const int sensor_weight[7] = {-3, -2, -1, 0, 1, 2, 3};
+
 
 // PD controller tuning
 float Kp = 17;
 float Kd = 2.0;
 
+
 int base_speed = 250; // Base speed of the robot
 int max_speed = 350; // Max speed constraint
 int lastError = 0; // To store previous error
 
+
 // Constants to store Motor pins
 const uint8_t LEFT_MOTOR = 1;
 const uint8_t RIGHT_MOTOR = 3;
+
 
 // --- Create a servo object ---
 Servo servo1;
 Servo servo2;
 Servo servo3;
 
-// --- PID variables for wall following
-double Setpoint1, Input1, Output1;
-
-// --- links and initial tuning parameters for wall following
-double Kp1 = 10, Ki1 = 0.0001, Kd1 = 2.5;
-PID PIDcon(&Input1, &Output1, &Setpoint1, Kp1, Ki1, Kd1, DIRECT);
-
 
 // --- Set Shield Address ---
 MotoronI2C mc1(0x10);
+
 
 // --- WiFi & UDP ---
 const char* ssid = "PhaseSpaceNetwork_2.4G";
@@ -79,13 +81,16 @@ WiFiUDP udp;
 unsigned int localPort = 55500;
 char incomingPacket[255];
 
+
 // --- Button ---
 const int buttonPin = 2;
 bool lastButtonState = HIGH;
 bool stopSignal = false;
 
+
 void setup() {
   Serial.begin(9600);
+
 
   // --- WiFi ---
   WiFi.begin(ssid, password);
@@ -119,13 +124,10 @@ void setup() {
   // --- Button ---
   pinMode(buttonPin, INPUT_PULLUP);
 
-  // === PID setup ===
-  Setpoint1 = 0; // Target error is 0
-  PIDcon.SetMode(AUTOMATIC);
-  PIDcon.SetOutputLimits(-150, 150); // Limit PID output
 
   limbs_vertical();
   scissor_lift_initial();
+
 
  // Calibrate reflectance sensors
   calibrate_middle_sensors();
@@ -135,6 +137,7 @@ void setup() {
 
 
 void loop(){
+
 
 
   kill_signal();
@@ -148,7 +151,6 @@ void loop(){
     line_following();
   }
   }
-
 
   // === Operation Functions ===
   void kill_signal(){
@@ -164,7 +166,6 @@ void loop(){
       Serial.println("!!! Emergency Stop Activated via WiFi !!!");
     }
   }
-
 
   // --- Button Toggle Handling ---
   bool currentButtonState = digitalRead(buttonPin);
@@ -189,13 +190,13 @@ void limbs_incline(){
   servo2.write(40);
 }
 
+
 void scissor_lift_initial(){
   servo3.write(80);
 }
 void scissor_lift_extended(){
   servo3.write(65);
 }
-
 
 // == Note: sensor reading and calibration functions were AI-generated ==
 // Reading sensor data
@@ -205,6 +206,7 @@ uint16_t read_sensor(uint8_t pin) {
   delayMicroseconds(10);
   pinMode(pin, INPUT);
 
+
   // Reads the pulse duration from a single reflectance sensor on a given pin.
   uint32_t t0 = micros();
   while (digitalRead(pin)) {
@@ -213,17 +215,16 @@ uint16_t read_sensor(uint8_t pin) {
   return micros() - t0;
 }
 
-
 void read_middle_sensors(uint16_t *dest) {
   for (uint8_t i = 0; i < 9; i++)
     dest[i] = read_sensor(middleSensorPins[i]); // Read each sensor in the 9 array
 }
 
+
 void read_front_sensors(uint16_t *dest) {
   for (uint8_t i = 0; i < 2; i++)
     dest[i] = read_sensor(frontSensorPins[i]); // Read each sensor in the 2 array
 }
-
 
 // Calibration Functions
 void calibrate_middle_sensors() {
@@ -271,12 +272,12 @@ bool check_front_white(uint16_t *frontSensors) {
     if (span < 1) span = 1;
     int normalized = (val * 1000) / span;
 
+
     // If the normalized value is greater than 200 -> black line
     if (normalized > 200) return false;
   }
   return true;
 }
-
 
 // Function to check if all readings are white on the front 2 sensors
 bool check_front_black(uint16_t *frontSensors) {
@@ -286,6 +287,7 @@ bool check_front_black(uint16_t *frontSensors) {
     int val = constrain(frontSensors[i] - frontMin[i], 0, span);
     if (span < 1) span = 1;
     int normalized = (val * 1000) / span;
+
 
     // If the normalized value is greater than 200 -> black line
     if (normalized > 200) return true;
@@ -302,6 +304,7 @@ bool check_middle_white(uint16_t *middleSensors) {
     int val = constrain(middleSensors[i] - middleMin[i], 0, span);
     if (span < 1) span = 1;
     int normalized = (val * 1000) / span;
+
 
     // If the normalized value is greater than 200 -> black line
     if (normalized > 200) return false;
@@ -337,6 +340,7 @@ int compute_error(uint16_t *sens) {
   // If no sensor reads a line, follow the previous error
   if (sum == 0) return lastKnownError;
 
+
   lastKnownError = weightedSum / sum; // Gives the error of the detected line from the center
   return lastKnownError;
 }
@@ -369,15 +373,17 @@ void turnUntilBlack(bool turnRight) {
       break;
     }
 
+
     delay(50);
   }
-
 
   // If not found, try turning in the opposite direction slowly
   if (!foundLine) {
     for (int i = 0; i < 20; i++) {
 
+
       int left, right;
+
 
       if (turnRight) {
         left = 335;
@@ -387,9 +393,11 @@ void turnUntilBlack(bool turnRight) {
         right = 300;
       }
 
+
       mc1.setSpeed(LEFT_MOTOR, left);
       mc1.setSpeed(RIGHT_MOTOR, right);
       delay(150);
+
 
       read_front_sensors(frontSensors);
       // Break loop if black line found by front sensors
@@ -398,17 +406,17 @@ void turnUntilBlack(bool turnRight) {
         break;
       }
 
+
       delay(50);
     }
   }
+
 
   // Stop motors after turning
   mc1.setSpeed(LEFT_MOTOR, 0);
   mc1.setSpeed(RIGHT_MOTOR, 0);
   delay(150);
 }
-
-
 
 // Main loop
 void line_following() {
@@ -432,7 +440,6 @@ void line_following() {
     lastError = 0;
   }
 
-
   if (!turning && check_front_white(frontSensors)) {
     turning = true;
 
@@ -440,6 +447,7 @@ void line_following() {
     mc1.setSpeed(LEFT_MOTOR, 0);
     mc1.setSpeed(RIGHT_MOTOR, 0);
     delay(200);
+
 
     // Move front slightly to detect which direction to turn
     mc1.setSpeed(LEFT_MOTOR, 200);
@@ -455,7 +463,6 @@ void line_following() {
     // Turn gradually until the turn is detected again
     turnUntilBlack(turnRight);
   }
-
 
   // Prevent the robot from executing the turning process if it's already turning
   if (turning && !check_front_white(frontSensors)) {
