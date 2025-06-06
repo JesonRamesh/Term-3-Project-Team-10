@@ -1,4 +1,4 @@
-# Krabby Patty - 'How To Use' Guide 
+# Krabby Patty - How To Use Guide 
 
 ## Contents
 - Robot Functional Overview
@@ -28,7 +28,7 @@ The robot is a mobile, autonomous platform that integrates multiple subsystems f
 ### 1. Movement Control and Wall Following
 The robot uses a Motoron I2C motor controller (address 0x10) to drive two DC motors which are driving the back two wheels. The wall-following logic is based on:
 
-- **Left IR distance sensor**: Measures distance from the left wall throughout the whole wall-following portion of the course.
+- **Left IR distance sensor**: Measures distance from the left wall throughout the whole wall-following portion of the course. 
 - **PID controller**: Maintains a target distance (15 cm) from the wall by adjusting motor speeds based on the error. This has been tuned through trial and error to be at an optimum functionality for wall following, for the speed and voltage used by the robot during operation.
 - **Front ultrasonic sensor**: Detects obstacles/wall ahead and is used mainly for the turning logic during the wall following portion of the course. If an object is detected closer than 14 cm, the robot halts wall-following and initiates a turning maneuver (for a specified delay that has been corrected through trial and error), after which it resumes wall-following as normal. 
 
@@ -97,14 +97,14 @@ When stuck:
 ### 6. System Initialization
 During `setup()`:
 
-**In all sketches:**
+**in all sketches:**
 - WiFi and UDP communication is initialized.
 - Motoron controller and servo pins are configured.
 - The robot begins in a safe state with limbs lifted and scissor lift in initial position.
 
 **In certain stage specific sketches:**
-- **Line following** - sensor arrays are calibrated manually and values for normalisation are obtained.
-- **Wall-following and stuck detection** - IMU is initialised 
+- Line following - sensor arrays are calibrated manually and values for normalisation are obtained.
+- Wall-following and stuck detection - IMU is initialised 
 
 **Note**: elements from both of these setups were used in the stage 3 code with both line and wall-following integrated.
 
