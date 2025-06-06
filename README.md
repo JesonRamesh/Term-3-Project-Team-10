@@ -1,4 +1,3 @@
-# Term-3-Project-Team-10
 # Krabby Patty - How To Use Guide 
 
 ## Contents
