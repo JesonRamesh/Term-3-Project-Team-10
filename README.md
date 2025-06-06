@@ -1,4 +1,4 @@
-# Krabby Patty - How To Use Guide 
+# Krabby Patty - 'How To Use' Guide 
 
 ## Contents
 - Robot Functional Overview
