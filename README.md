@@ -54,12 +54,15 @@ Where Kp = 17, Kd = 2.0, and the correction is multiplied by 3 to provide signif
 
 #### Turn Handling
 When both front sensors detect white (no line), the robot:
-1. Stops briefly and moves forward slightly to probe direction.
+1. Stops briefly and moves forward slightly to probe direction and to ensure that the stop condition has not been met.
 2. Decides the turning direction based on the last known line-following error.
 3. Rotates until one of the front sensors detects black (line found).
 4. Resumes normal line following.
 
 This method ensures robust behavior at junctions, gaps in the line and 90 degree turns. 
+
+#### Line Following Stop Condition
+When all the reflectance sensors read white, the robot stops. 
 
 ### 3. Servo Mechanism
 Three servos operate key mechanical components:
