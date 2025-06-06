@@ -113,16 +113,16 @@ After `setup()`:
 
 ## Operation Instructions
 
-### Stage 1 - Line Following
+### Section 1 - Line Following
 1. Use line following sketch with integrated killswitch logic, and upload the code to the onboard Arduino Giga. 
 2. Place the robot over the line, connect battery power and manually move back and forth over the line until calibrated (Until motors start running).
 3. The robot should then be capable of autonomously following the line. 
 
-### Stage 2 - Wall Following 
+### Section 2 - Wall Following 
 1. Use wall following and stuck detection sketch with integrated killswitch logic, and upload the code to the onboard Arduino Giga.
 2. No calibration needed, The robot should display wall following and stuck detection features autonomously. 
 
-### Stage 3 - Line Following + Wall Following, Scissor Lift
+### Section 3 - Line Following + Wall Following, Scissor Lift
 1. Use section 3 wall following and line following sketch with integrated killswitch logic, and upload code to the onboard Arduino Giga.
 2. Calibrate initially for line following in the same manner as section 1. The robot should then autonomously switch between wall and line-following for locomotion depending on the presence or absence of a wall. 
 3. Upload separate motors and scissor lift integrated sketch for Lava Pit and ziplines sections of this stage, as integration of code was not completed due to time constraints. 
